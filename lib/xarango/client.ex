@@ -54,7 +54,8 @@ defmodule Xarango.Client do
   end
 
   defp do_request(method, url, body) when is_binary(body) do
-    case HTTPoison.request(method, url, body, headers()) do
+    recv_timeout = Application.get_env(:xarango, :recv_timeout, 5_000)
+    case HTTPoison.request(method, url, body, headers(), recv_timeout: recv_timeout) do
       {:error, %HTTPoison.Error{reason: error}} when is_atom(error)-> raise Xarango.Error, message: Atom.to_string(error)
       {:error, %HTTPoison.Error{reason: error}} when is_binary(error)-> raise Xarango.Error, message: error
       {:error, error} when is_binary(error) -> raise Xarango.Error, message: error
